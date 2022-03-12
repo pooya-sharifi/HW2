@@ -2,6 +2,8 @@
 #include "client.h"
 #include <iostream>
 #include <random>
+// #include <sstream>
+#include <string>
 // #include <vector>
 
 std::shared_ptr<Client> Server::add_client(std::string id)
@@ -39,17 +41,18 @@ std::shared_ptr<Client> Server::add_client(std::string id)
     clients[pnt_client] = wallet;
     return pnt_client;
 }
-std::shared_ptr<Client> Server::get_client(std::string id)
+std::shared_ptr<Client> Server::get_client(std::string id) const
 {
-    // std::shared_ptr<Client> ptr_for;
+    std::shared_ptr<Client> ptr_for_return { nullptr };
     for (auto ptr_for = clients.begin(); ptr_for != clients.end(); ++ptr_for) {
         std::shared_ptr<Client> ptr_to_first;
         ptr_to_first = ptr_for->first;
         if (ptr_to_first->get_id() == id) {
-            return ptr_to_first;
+            ptr_for_return = ptr_to_first;
+            return ptr_for_return;
         }
     }
-
+    return ptr_for_return;
     // in ro bara vaghti mishe ke esme pointer ba id yeki bashe
     // std::shared_ptr<Client> ret;
     // ret = make_shared<Client>(id);
@@ -75,14 +78,35 @@ double Server::get_wallet(std::string id)
 }
 bool Server::parse_trx(std::string trx, std::string sender, std::string receiver, double value)
 {
+    std::string word {};
+    size_t count {};
+    for (auto x : trx) {
+        if (x == '-') {
+            count++;
+            std::cout << word << std::endl;
+
+            if (count == 1) {
+                sender = word;
+            }
+            if (count == 2) {
+                receiver = word;
+            }
+            if (count == 3) {
+                value = std::stoi(word);
+            }
+
+        } else {
+            word += x;
+        }
+    }
     // trx chiye?
-    std::string string_trx;
-    string_trx += sender;
-    string_trx += "-";
-    string_trx += receiver;
-    string_trx += "-";
-    string_trx += value;
-    std::cout << string_trx;
+    // std::string string_trx;
+    // string_trx += sender;
+    // string_trx += "-";
+    // string_trx += receiver;
+    // string_trx += "-";
+    // string_trx += value;
+    // std::cout << string_trx;
 }
 bool Server::add_pending_trx(std::string trx, std::string signature)
 {

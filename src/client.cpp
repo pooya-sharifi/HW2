@@ -9,7 +9,6 @@ Client::Client(std::string _id, const Server& _server)
     : id { _id }
     , server { &_server }
 {
-
     std::cout << "Client Constructor" << std::endl;
     std::string _public_key {}, _private_key {};
     crypto::generate_key(_public_key, _private_key);
@@ -20,7 +19,7 @@ std::string Client::get_id()
 {
     return id;
 }
-std::string Client::get_publickey()
+std::string Client::get_publickey() const
 {
     return public_key;
 }
@@ -31,12 +30,13 @@ double Client::get_wallet()
     double wallet_cl_standin = s.get_wallet(id);
     return wallet_cl_standin;
 }
-std::string Client::sign(std::string txt)
+std::string Client::sign(std::string txt) const
 {
 
     // check kon bebin doroste?
     // std::string signature = crypto::signMessage(private_key, "my data");
-    // return signature;
+    std::string signature = crypto::signMessage(private_key, txt);
+    return signature;
 }
 bool Client::transfer_money(std::string receiver, double value)
 {
