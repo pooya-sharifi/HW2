@@ -1,5 +1,6 @@
 #include "server.h"
 #include "client.h"
+#include "crypto.h"
 #include <iostream>
 #include <random>
 // #include <sstream>
@@ -25,13 +26,15 @@ std::shared_ptr<Client> Server::add_client(std::string id)
         std::uniform_real_distribution<double> dist(0, 9);
         // ham 4 ta bayad bashe ,ham int nemidoonam chera nemishe
         //  id_for_changes=id+dist(mt)+dist(mt)+dist(mt)+dist(mt);
-        id += std::to_string(dist(mt));
-        std::cout << id;
+        for (size_t i { 0 }; i != 4; i++) {
+            id_for_changes = id_for_changes + std::to_string(static_cast<int>((dist(mt))));
+        }
+        // std::cout << id;
     }
 
-    std::cout << "miyad in ja?3";
+    // std::cout << "miyad in ja?3";
     std::shared_ptr<Client> pnt_client;
-    Client khers(id, *this);
+    Client khers(id_for_changes, *this);
     //  inke id yeki bashan ro ham felan bikhiyal shodam!!****
     ////nemidoonam koodoome inast ya ziriye ya oonekiye
     pnt_client = std::make_shared<Client>(khers);
@@ -76,29 +79,39 @@ double Server::get_wallet(std::string id)
         }
     }
 }
-bool Server::parse_trx(std::string trx, std::string sender, std::string receiver, double value)
+bool Server::parse_trx(std::string trx, std::string& sender, std::string& receiver, double& value)
 {
     std::string word {};
     size_t count {};
     for (auto x : trx) {
+        std::cout << "khers" << x << std::endl;
         if (x == '-') {
             count++;
-            std::cout << word << std::endl;
 
             if (count == 1) {
                 sender = word;
+                word = "";
             }
             if (count == 2) {
+
                 receiver = word;
-            }
-            if (count == 3) {
-                value = std::stoi(word);
+                word = "";
             }
 
         } else {
             word += x;
         }
     }
+    if (count == 1) {
+        throw std::runtime_error(receiver);
+    }
+    if (count == 0) {
+        throw std::runtime_error(sender);
+    }
+    auto value_standin = std::stod(word);
+    value = value_standin;
+    std::cout << sender << receiver << value;
+
     // trx chiye?
     // std::string string_trx;
     // string_trx += sender;
@@ -110,6 +123,21 @@ bool Server::parse_trx(std::string trx, std::string sender, std::string receiver
 }
 bool Server::add_pending_trx(std::string trx, std::string signature)
 {
+    std::shared_ptr<Client> ptr_to_client;
+    // std::shared_ptr<Client> ptr_to_map;
+    auto _clients = this->clients;
+    auto pointer_to_map = _clients.begin();
+    auto pointer_to_first = pointer_to_map->first;
+    // std::cout << this->clients;
+    // std::cout << *ptr_to_map;
+    // std::shared_ptr<Client> ptr_to_first;
+    // std::string id_in_pending;
+    // ptr_to_client = this->get_client(*ptr_to_first);
+    if (bool authentic = crypto::verifySignature(pointer_to_first->get_publickey(), trx, signature) == 1) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 size_t Server::mine()
 {

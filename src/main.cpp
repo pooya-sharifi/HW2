@@ -13,12 +13,18 @@ int main(int argc, char** argv)
     {
 
         Server panda;
+
         // std::string a = "abcdefg";
         // std::cout << a;
         auto bryan { panda.add_client("bryan") };
         auto bryan1 { panda.add_client("bryan") };
+        std::string get_sign;
+        // get_sign = bryan->sign("bryan - bryan1 - 2.0");
+        // panda.add_pending_trx("bryan - bryan1 - 2.0", get_sign);
         std::cout << bryan->get_id();
-        std::cout << bryan->get_publickey();
+        std::cout << bryan1->get_id();
+        // std::cout << bryan->get_publickey();
+
         // // debug section
         // std::shared_ptr<Client> idk_justfor;
         // idk_justfor = panda.add_client("abs");
