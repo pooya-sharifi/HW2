@@ -6,7 +6,7 @@
 // #include <sstream>
 #include <string>
 // #include <vector>
-
+std::vector<std::string> pending_trxs;
 std::shared_ptr<Client> Server::add_client(std::string id)
 {
     int flag { 0 };
@@ -82,6 +82,8 @@ double Server::get_wallet(std::string id)
 bool Server::parse_trx(std::string trx, std::string& sender, std::string& receiver, double& value)
 {
     std::string word {};
+    std::string word1 {};
+    std::string word2 {};
     size_t count {};
     for (auto x : trx) {
         std::cout << "khers" << x << std::endl;
@@ -89,29 +91,39 @@ bool Server::parse_trx(std::string trx, std::string& sender, std::string& receiv
             count++;
 
             if (count == 1) {
-                sender = word;
-                word = "";
+                word1 = word;
+                word = {};
             }
             if (count == 2) {
 
-                receiver = word;
-                word = "";
+                word2 = word;
+                word = {};
             }
 
         } else {
             word += x;
         }
     }
+    std::cout << word;
+    std::cout << "after loop...." << std::endl;
     if (count == 1) {
         throw std::runtime_error(receiver);
     }
     if (count == 0) {
         throw std::runtime_error(sender);
     }
-    auto value_standin = std::stod(word);
-    value = value_standin;
-    std::cout << sender << receiver << value;
+    std::cout << "after if...." << std::endl;
 
+    auto value_standin = std::stod(word);
+    std::cout << "after stod...." << std::endl;
+    value = value_standin;
+    sender = word1;
+    receiver = word2;
+    std::cout << "after value...." << std::endl;
+    std::cout << sender << std::endl;
+    std::cout << receiver << std::endl;
+    std::cout << value << std::endl;
+    return 1;
     // trx chiye?
     // std::string string_trx;
     // string_trx += sender;
@@ -123,17 +135,18 @@ bool Server::parse_trx(std::string trx, std::string& sender, std::string& receiv
 }
 bool Server::add_pending_trx(std::string trx, std::string signature)
 {
-    std::shared_ptr<Client> ptr_to_client;
-    // std::shared_ptr<Client> ptr_to_map;
-    auto _clients = this->clients;
-    auto pointer_to_map = _clients.begin();
-    auto pointer_to_first = pointer_to_map->first;
-    // std::cout << this->clients;
-    // std::cout << *ptr_to_map;
-    // std::shared_ptr<Client> ptr_to_first;
-    // std::string id_in_pending;
-    // ptr_to_client = this->get_client(*ptr_to_first);
-    if (bool authentic = crypto::verifySignature(pointer_to_first->get_publickey(), trx, signature) == 1) {
+    std::string sender {}, receiver {};
+    double value;
+    this->parse_trx(trx, sender, receiver, value);
+    auto khers = (this->get_client(sender));
+    auto mongol = khers->get_publickey();
+    std::cout << "public key by khers" << mongol;
+    bool authentic = crypto::verifySignature(mongol, trx, signature);
+
+    if (authentic == 1) {
+        pending_trxs.push_back(trx);
+
+        std::cout << trx;
         return 1;
     } else {
         return 0;

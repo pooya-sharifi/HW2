@@ -5,24 +5,24 @@
 #include <iostream>
 // #include <vector>
 // motmaen nistam inja jaye dorostiye ya na
-// std::vector<std::string> pending_trxs;
 
 int main(int argc, char** argv)
 {
-    if (false) // make false to run unit-tests
+    if (true) // make false to run unit-tests
     {
 
         Server panda;
-
-        // std::string a = "abcdefg";
-        // std::cout << a;
         auto bryan { panda.add_client("bryan") };
         auto bryan1 { panda.add_client("bryan") };
-        std::string get_sign;
+        // std::cout << "public key by panda" << (bryan->get_publickey());
+        // panda.add_pending_trx("bryan-hamed-2.2", bryan->sign("bryan-hamed-2.2"));
+        std::cout << bryan->generate_nonce();
+        bryan1->transfer_money("bryan", 2.0);
+        // std::string get_sign;
         // get_sign = bryan->sign("bryan - bryan1 - 2.0");
         // panda.add_pending_trx("bryan - bryan1 - 2.0", get_sign);
-        std::cout << bryan->get_id();
-        std::cout << bryan1->get_id();
+        // std::cout << bryan->get_id();
+        // std::cout << bryan1->get_id();
         // std::cout << bryan->get_publickey();
 
         // // debug section

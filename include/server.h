@@ -6,8 +6,9 @@
 #include <memory>
 #include <string>
 #include <vector>
+
 // idk ke inja bayad tarif she
-std::vector<std::string> pending_trxs;
+
 class Server {
 public:
     Server() = default;
