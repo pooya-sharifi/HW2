@@ -44,13 +44,20 @@ bool Client::transfer_money(std::string receiver, double value)
     std::string trx_we_made {};
     trx_we_made += this->get_id();
     trx_we_made += "-";
+    if (this->server->get_client(receiver) == nullptr) {
+        return false;
+    }
     trx_we_made += receiver;
     trx_we_made += "-";
+    if (value > this->server->get_client(receiver)->get_wallet()) {
+        return false;
+    }
     trx_we_made += std::to_string(value);
     std::cout << trx_we_made;
     // motmaen nistam sign ro
     Server server_standin_cause_const = *this->server;
     server_standin_cause_const.add_pending_trx(trx_we_made, this->sign(trx_we_made));
+    return 1;
 }
 size_t Client::generate_nonce()
 {

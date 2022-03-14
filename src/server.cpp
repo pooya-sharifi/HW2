@@ -86,7 +86,6 @@ bool Server::parse_trx(std::string trx, std::string& sender, std::string& receiv
     std::string word2 {};
     size_t count {};
     for (auto x : trx) {
-        std::cout << "khers" << x << std::endl;
         if (x == '-') {
             count++;
 
@@ -174,11 +173,39 @@ size_t Server::mine()
             std::cout << "mempool baade nonce" << mempool_standin << std::endl;
             std::string hash { crypto::sha256(mempool_standin) };
             std::cout << hash << "this was hash" << std::endl;
-            if (hash[63] == '0' && hash[62] == '0' && hash[61] == '0') {
+            if (hash.substr(0, 10).find("000") != std::string::npos) {
                 std::cout << "khers was victorius";
+                std::cout << ptr_to_first->get_id();
+                std::cout << this->get_client(ptr_to_first->get_id())->get_wallet() << std::endl;
+                clients[ptr_to_first] = (this->get_client(ptr_to_first->get_id())->get_wallet()) + 6.25;
+                std::cout << ptr_to_first->get_id();
+                std::cout << this->get_client(ptr_to_first->get_id())->get_wallet() << std::endl;
                 flag = 1;
-                return flag;
+                mempool = mempool_standin;
+                if (flag == 1) {
+                    for (size_t i = 0; i < rows; i++) {
+                        std::string sender {}, receiver {};
+                        double value;
+                        Server::parse_trx(pending_trxs[i], sender, receiver, value);
+                        std::cout << "this is the sender of the transaction" << sender << std::endl;
+                        std::cout << "this is transactions being done:wallet of the sender:" << this->get_client(sender)->get_wallet() << std::endl;
+                        clients[this->get_client(sender)] = (this->get_client(sender)->get_wallet()) - value;
+                        std::cout << "done:sender" << sender << std::endl;
+                        std::cout << "done sender wallet:" << (this->get_client(sender)->get_wallet()) << std::endl;
+                        clients[this->get_client(receiver)] = (this->get_client(receiver)->get_wallet()) + value;
+                        std::cout << "done:reciver" << receiver << std::endl;
+                        std::cout << "done reciver wallet:" << (this->get_client(receiver)->get_wallet()) << std::endl;
+                    }
+                    return nonce_generated;
+                }
             }
         }
     }
+}
+void show_wallets(const Server& server)
+{
+    std::cout << std::string(20, '*') << std::endl;
+    for (const auto& client : server.clients)
+        std::cout << client.first->get_id() << " : " << client.second << std::endl;
+    std::cout << std::string(20, '*') << std::endl;
 }
