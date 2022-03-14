@@ -57,7 +57,7 @@ size_t Client::generate_nonce()
     size_t numb_ret { 0 };
     std::random_device rd;
     std::mt19937 mt(rd());
-    std::uniform_real_distribution<double> dist(0, 10 * e ^ 97);
+    std::uniform_real_distribution<double> dist(0, 999999999);
     for (size_t i = 0; i < 2; i++) {
 
         numb_ret = static_cast<size_t>((dist(mt)));

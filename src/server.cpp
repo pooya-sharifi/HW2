@@ -147,6 +147,7 @@ bool Server::add_pending_trx(std::string trx, std::string signature)
         pending_trxs.push_back(trx);
 
         std::cout << trx;
+        std::cout << pending_trxs[0];
         return 1;
     } else {
         return 0;
@@ -154,4 +155,30 @@ bool Server::add_pending_trx(std::string trx, std::string signature)
 }
 size_t Server::mine()
 {
+    std::string mempool {};
+    size_t rows = pending_trxs.size();
+    for (size_t i = 0; i < rows; i++) {
+        mempool += pending_trxs[i];
+        std::cout << "ina ke mibini mempoole" << mempool << std::endl;
+    }
+    size_t nonce_generated {};
+    std::shared_ptr<Client> ptr_for_return { nullptr };
+    size_t flag { 0 };
+    while (flag == 0) {
+        for (auto ptr_for = clients.begin(); ptr_for != clients.end(); ++ptr_for) {
+            std::string mempool_standin { mempool };
+            std::shared_ptr<Client> ptr_to_first;
+            ptr_to_first = ptr_for->first;
+            nonce_generated = ptr_to_first->generate_nonce();
+            mempool_standin += std::to_string(nonce_generated);
+            std::cout << "mempool baade nonce" << mempool_standin << std::endl;
+            std::string hash { crypto::sha256(mempool_standin) };
+            std::cout << hash << "this was hash" << std::endl;
+            if (hash[63] == '0' && hash[62] == '0' && hash[61] == '0') {
+                std::cout << "khers was victorius";
+                flag = 1;
+                return flag;
+            }
+        }
+    }
 }

@@ -16,8 +16,11 @@ int main(int argc, char** argv)
         auto bryan1 { panda.add_client("bryan") };
         // std::cout << "public key by panda" << (bryan->get_publickey());
         // panda.add_pending_trx("bryan-hamed-2.2", bryan->sign("bryan-hamed-2.2"));
-        std::cout << bryan->generate_nonce();
+        // std::cout << bryan->generate_nonce();
         bryan1->transfer_money("bryan", 2.0);
+        bryan->transfer_money("bryan1", 3.0);
+        panda.mine();
+
         // std::string get_sign;
         // get_sign = bryan->sign("bryan - bryan1 - 2.0");
         // panda.add_pending_trx("bryan - bryan1 - 2.0", get_sign);
