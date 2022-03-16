@@ -10,7 +10,6 @@ std::vector<std::string> pending_trxs;
 std::shared_ptr<Client> Server::add_client(std::string id)
 {
     int flag { 0 };
-    // std::shared_ptr<Client> ptr_for;
     for (auto ptr_for = clients.begin(); ptr_for != clients.end(); ++ptr_for) {
         std::shared_ptr<Client> ptr_to_first;
         ptr_to_first = ptr_for->first;
@@ -24,22 +23,14 @@ std::shared_ptr<Client> Server::add_client(std::string id)
         std::random_device rd;
         std::mt19937 mt(rd());
         std::uniform_real_distribution<double> dist(0, 9);
-        // ham 4 ta bayad bashe ,ham int nemidoonam chera nemishe
-        //  id_for_changes=id+dist(mt)+dist(mt)+dist(mt)+dist(mt);
         for (size_t i { 0 }; i != 4; i++) {
             id_for_changes = id_for_changes + std::to_string(static_cast<int>((dist(mt))));
         }
-        // std::cout << id;
     }
 
-    // std::cout << "miyad in ja?3";
     std::shared_ptr<Client> pnt_client;
     Client khers(id_for_changes, *this);
-    //  inke id yeki bashan ro ham felan bikhiyal shodam!!****
-    ////nemidoonam koodoome inast ya ziriye ya oonekiye
     pnt_client = std::make_shared<Client>(khers);
-    // pnt_client->khers;
-    // not sure at all?
     double wallet { 5.0 };
     clients[pnt_client] = wallet;
     return pnt_client;
@@ -56,16 +47,6 @@ std::shared_ptr<Client> Server::get_client(std::string id) const
         }
     }
     return ptr_for_return;
-    // in ro bara vaghti mishe ke esme pointer ba id yeki bashe
-    // std::shared_ptr<Client> ret;
-    // ret = make_shared<Client>(id);
-    // return id;
-    // // kamel kon !!!!!???
-    // std::shared_ptr<Client> pnt_client;
-    // std::string id_standin;
-
-    // std::cout << khers.get_id();
-    // return pnt_client;
 }
 double Server::get_wallet(std::string id)
 {
@@ -78,6 +59,7 @@ double Server::get_wallet(std::string id)
             return wallet_standin;
         }
     }
+    throw std::runtime_error("no wallet found");
 }
 bool Server::parse_trx(std::string trx, std::string& sender, std::string& receiver, double& value)
 {
@@ -103,45 +85,39 @@ bool Server::parse_trx(std::string trx, std::string& sender, std::string& receiv
             word += x;
         }
     }
-    std::cout << word;
-    std::cout << "after loop...." << std::endl;
+    // std::cout << word;
+    // std::cout << "after loop...." << std::endl;
     if (count == 1) {
         throw std::runtime_error(receiver);
     }
     if (count == 0) {
         throw std::runtime_error(sender);
     }
-    std::cout << "after if...." << std::endl;
+    // std::cout << "after if...." << std::endl;
 
     auto value_standin = std::stod(word);
-    std::cout << "after stod...." << std::endl;
+    // std::cout << "after stod...." << std::endl;
     value = value_standin;
     sender = word1;
     receiver = word2;
-    std::cout << "after value...." << std::endl;
-    std::cout << sender << std::endl;
-    std::cout << receiver << std::endl;
-    std::cout << value << std::endl;
+    // std::cout << "after value...." << std::endl;
+    // std::cout << sender << std::endl;
+    // std::cout << receiver << std::endl;
+    // std::cout << value << std::endl;
     return 1;
-    // trx chiye?
-    // std::string string_trx;
-    // string_trx += sender;
-    // string_trx += "-";
-    // string_trx += receiver;
-    // string_trx += "-";
-    // string_trx += value;
-    // std::cout << string_trx;
 }
 bool Server::add_pending_trx(std::string trx, std::string signature)
 {
     std::string sender {}, receiver {};
     double value;
     this->parse_trx(trx, sender, receiver, value);
-    auto khers = (this->get_client(sender));
-    auto mongol = khers->get_publickey();
-    std::cout << "public key by khers" << mongol;
-    bool authentic = crypto::verifySignature(mongol, trx, signature);
-
+    auto pointer_to_sender { (this->get_client(sender)) };
+    auto publickey_given { pointer_to_sender->get_publickey() };
+    std::cout << "public key by " << publickey_given;
+    bool authentic = crypto::verifySignature(publickey_given, trx, signature);
+    if (value > this->get_client(receiver)->get_wallet()) {
+        return false;
+    }
     if (authentic == 1) {
         pending_trxs.push_back(trx);
 
@@ -172,14 +148,14 @@ size_t Server::mine()
             mempool_standin += std::to_string(nonce_generated);
             std::cout << "mempool baade nonce" << mempool_standin << std::endl;
             std::string hash { crypto::sha256(mempool_standin) };
-            std::cout << hash << "this was hash" << std::endl;
+            // std::cout << hash << "this was hash" << std::endl;
             if (hash.substr(0, 10).find("000") != std::string::npos) {
-                std::cout << "khers was victorius";
-                std::cout << ptr_to_first->get_id();
-                std::cout << this->get_client(ptr_to_first->get_id())->get_wallet() << std::endl;
+                std::cout << "Miner is  ";
+                std::cout << ptr_to_first->get_id() << std::endl;
+                std::cout << "MIners wallet before :" << this->get_client(ptr_to_first->get_id())->get_wallet() << std::endl;
                 clients[ptr_to_first] = (this->get_client(ptr_to_first->get_id())->get_wallet()) + 6.25;
                 std::cout << ptr_to_first->get_id();
-                std::cout << this->get_client(ptr_to_first->get_id())->get_wallet() << std::endl;
+                std::cout << "MIners wallet after Mine:" << this->get_client(ptr_to_first->get_id())->get_wallet() << std::endl;
                 flag = 1;
                 mempool = mempool_standin;
                 if (flag == 1) {
@@ -187,20 +163,22 @@ size_t Server::mine()
                         std::string sender {}, receiver {};
                         double value;
                         Server::parse_trx(pending_trxs[i], sender, receiver, value);
-                        std::cout << "this is the sender of the transaction" << sender << std::endl;
-                        std::cout << "this is transactions being done:wallet of the sender:" << this->get_client(sender)->get_wallet() << std::endl;
+                        // std::cout << "this is the sender of the transaction" << sender << std::endl;
+                        // std::cout << "this is transactions being done:wallet of the sender:" << this->get_client(sender)->get_wallet() << std::endl;
                         clients[this->get_client(sender)] = (this->get_client(sender)->get_wallet()) - value;
-                        std::cout << "done:sender" << sender << std::endl;
-                        std::cout << "done sender wallet:" << (this->get_client(sender)->get_wallet()) << std::endl;
+                        // std::cout << "done:sender" << sender << std::endl;
+                        // std::cout << "done sender wallet:" << (this->get_client(sender)->get_wallet()) << std::endl;
                         clients[this->get_client(receiver)] = (this->get_client(receiver)->get_wallet()) + value;
-                        std::cout << "done:reciver" << receiver << std::endl;
-                        std::cout << "done reciver wallet:" << (this->get_client(receiver)->get_wallet()) << std::endl;
+                        // std::cout << "done:reciver" << receiver << std::endl;
+                        // std::cout << "done reciver wallet:" << (this->get_client(receiver)->get_wallet()) << std::endl;
                     }
+                    pending_trxs.clear();
                     return nonce_generated;
                 }
             }
         }
     }
+    throw std::runtime_error("couldnt mine");
 }
 void show_wallets(const Server& server)
 {

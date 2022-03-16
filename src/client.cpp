@@ -34,7 +34,6 @@ double Client::get_wallet()
 std::string Client::sign(std::string txt) const
 {
 
-    // check kon bebin doroste?
     // std::string signature = crypto::signMessage(private_key, "my data");
     std::string signature = crypto::signMessage(private_key, txt);
     return signature;

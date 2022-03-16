@@ -5,7 +5,7 @@
 #include <iostream>
 // #include <vector>
 // motmaen nistam inja jaye dorostiye ya na
-
+void show_pending_transactions();
 int main(int argc, char** argv)
 {
     if (false) // make false to run unit-tests
@@ -13,13 +13,18 @@ int main(int argc, char** argv)
 
         Server panda;
         auto bryan { panda.add_client("bryan") };
-        auto bryan1 { panda.add_client("bryan") };
+        auto ali { panda.add_client("ali") };
+        auto hassan { panda.add_client("hassan") };
         // std::cout << "public key by panda" << (bryan->get_publickey());
         // panda.add_pending_trx("bryan-hamed-2.2", bryan->sign("bryan-hamed-2.2"));
         // std::cout << bryan->generate_nonce();
-        bryan1->transfer_money("bryan", 2.0);
-        bryan->transfer_money("bryan1", 3.0);
+        bryan->transfer_money("ali", 1.0);
+        bryan->transfer_money("hassan", 1.0);
+        bryan->transfer_money("hassan", 1.0);
+        bryan->transfer_money("hassan", 1.0);
+        bryan->transfer_money("ali", 1.0);
         panda.mine();
+        show_wallets(panda);
 
         // std::string get_sign;
         // get_sign = bryan->sign("bryan - bryan1 - 2.0");
@@ -45,10 +50,10 @@ int main(int argc, char** argv)
     }
     return 0;
 }
-// void show_pending_transactions()
-// {
-//     std::cout << std::string(20, '*') << std::endl;
-//     for (const auto& trx : pending_trxs)
-//         std::cout << trx << std::endl;
-//     std::cout << std::string(20, '*') << std::endl;
-// }
+void show_pending_transactions()
+{
+    std::cout << std::string(20, '*') << std::endl;
+    for (const auto& trx : pending_trxs)
+        std::cout << trx << std::endl;
+    std::cout << std::string(20, '*') << std::endl;
+}
